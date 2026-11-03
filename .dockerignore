@@ -1,0 +1,22 @@
+# Git
+.git
+.github
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Secrets and local config — never baked into an image
+.env
+*.env
+!.env.example
+
+# Docs and assets not needed at runtime
+README.md
+LICENSE
+docs/
+tests/
