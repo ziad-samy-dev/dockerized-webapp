@@ -80,12 +80,15 @@ dockerized-webapp/
 │   ├── app.py                 # Flask routes + DB connectivity check
 │   ├── templates/index.html   # server-rendered status page
 │   └── requirements.txt       # pinned, reproducible dependencies
+├── tests/test_app.py          # Pytest smoke tests (degraded-mode assertions)
 ├── nginx/default.conf         # reverse proxy configuration
 ├── Dockerfile                 # multi-stage build, non-root runtime
 ├── docker-compose.yml         # app + db + nginx, health-gated startup
+├── pyproject.toml             # Ruff + Pytest configuration
+├── requirements-dev.txt       # lint and test dependencies only
 ├── .env.example               # documented configuration
 ├── .dockerignore              # keeps secrets and junk out of the image
-└── .github/workflows/ci.yml   # lint → test → build → scan
+└── .github/workflows/ci.yml   # lint → test → build → Trivy scan
 ```
 
 ## Design decisions
@@ -107,9 +110,21 @@ dockerized-webapp/
 - Why `.dockerignore` is a security control, not just a build-time optimisation.
 - How image size and attack surface drop when the build toolchain stays in stage 1.
 
+## CI/CD
+
+Every push to `main` runs two jobs on GitHub Actions:
+
+1. **Lint & test** — `ruff check`, then `pytest` on Python 3.12 with pip caching.
+2. **Build image & Trivy scan** — builds the multi-stage image and scans it for
+   HIGH/CRITICAL OS and library vulnerabilities, ignoring findings with no fix
+   available.
+
+The status badge at the top of this file reflects the latest run.
+
 ## Roadmap
 
-- [ ] Add CI: Ruff → Pytest → image build → Trivy scan (GitHub Actions)
+- [x] Add CI: Ruff → Pytest → image build → Trivy scan (GitHub Actions)
+- [ ] Gate the pipeline on the Trivy report (`exit-code: 1`) and triage findings
 - [ ] Publish the image to Docker Hub / GHCR
 - [ ] Push `db_data` to a managed database and run Compose in a remote environment
 - [ ] Add Prometheus metrics and a Grafana dashboard

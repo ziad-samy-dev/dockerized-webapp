@@ -1,0 +1,4 @@
+# Development-only dependencies (linting and tests).
+# Runtime dependencies stay in app/requirements.txt so the image stays small.
+pytest>=8.0,<9
+ruff>=0.8,<1
