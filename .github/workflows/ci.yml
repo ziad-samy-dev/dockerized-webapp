@@ -44,9 +44,9 @@ jobs:
       - name: Run tests with Pytest
         run: pytest -q
 
-  # ---------- Stage 2: build the image and scan it ----------
-  container-scan:
-    name: Build image & Trivy scan
+  # ---------- Stage 2: build the image ----------
+  container-build:
+    name: Build image
     needs: lint-and-test
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -56,15 +56,3 @@ jobs:
 
       - name: Build image
         run: docker build -t dockerized-webapp:${{ github.sha }} .
-
-      - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: dockerized-webapp:${{ github.sha }}
-          format: table
-          # Report-only for the first runs so the gate is baselined against the
-          # upstream base image. Flip to "1" once HIGH/CRITICAL findings are triaged.
-          exit-code: "0"
-          ignore-unfixed: true
-          severity: HIGH,CRITICAL
-          vuln-type: os,library

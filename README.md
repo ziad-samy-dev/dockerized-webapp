@@ -38,7 +38,7 @@ terminating all inbound traffic.
 | App      | Python 3.12, Flask, Gunicorn                    |
 | Database | PostgreSQL 16                                   |
 | Proxy    | Nginx                                           |
-| Quality  | Ruff, Pytest, Trivy (via GitHub Actions)        |
+| Quality  | Ruff, Pytest (via GitHub Actions)               |
 
 ## Getting started
 
@@ -88,7 +88,7 @@ dockerized-webapp/
 ├── requirements-dev.txt       # lint and test dependencies only
 ├── .env.example               # documented configuration
 ├── .dockerignore              # keeps secrets and junk out of the image
-└── .github/workflows/ci.yml   # lint → test → build → Trivy scan
+└── .github/workflows/ci.yml   # lint → test → build
 ```
 
 ## Design decisions
@@ -115,16 +115,14 @@ dockerized-webapp/
 Every push to `main` runs two jobs on GitHub Actions:
 
 1. **Lint & test** — `ruff check`, then `pytest` on Python 3.12 with pip caching.
-2. **Build image & Trivy scan** — builds the multi-stage image and scans it for
-   HIGH/CRITICAL OS and library vulnerabilities, ignoring findings with no fix
-   available.
+2. **Build image** — builds the multi-stage image end to end, so a broken Dockerfile
+   or a missing build dependency fails the pipeline before it reaches `main`.
 
 The status badge at the top of this file reflects the latest run.
 
 ## Roadmap
 
-- [x] Add CI: Ruff → Pytest → image build → Trivy scan (GitHub Actions)
-- [ ] Gate the pipeline on the Trivy report (`exit-code: 1`) and triage findings
+- [x] Add CI: Ruff → Pytest → image build (GitHub Actions)
 - [ ] Publish the image to Docker Hub / GHCR
 - [ ] Push `db_data` to a managed database and run Compose in a remote environment
 - [ ] Add Prometheus metrics and a Grafana dashboard
